@@ -135,7 +135,7 @@ def mapComplete():
                 mapYear(year) 
                 appendAllYears() 
                 writeLastRun()
-                git_push
+                git_push()
     
 def git_push():
     try:
