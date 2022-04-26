@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 from urllib.parse import parse_qs
 import os
 from git import Repo
+import time
     
 now = datetime.datetime.now()
 years=range(2009,now.year+1)
@@ -135,7 +136,10 @@ def mapComplete():
                 mapYear(year) 
                 appendAllYears() 
                 writeLastRun()
+                time.sleep(5)
                 git_push()
+            else:
+                print('Contracts are up to date')
     
 def git_push():
     try:
@@ -144,8 +148,9 @@ def git_push():
         repo.index.commit(commitMessage)
         origin = repo.remote(name='origin')
         origin.push()
+        print('New contracts pushed successfully')   
     except:
-        print('Some error occured while pushing the code')      
+        print('An error occured while pushing the code')      
 
 
 if not os.path.exists(f'./{contractsFolder}'):
