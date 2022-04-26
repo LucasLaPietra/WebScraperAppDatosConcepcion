@@ -144,7 +144,7 @@ def mapComplete():
 def git_push():
     try:
         repo = Repo(pathGit)
-        repo.git.add(update=True)
+        repo.git.add(all=True)
         repo.index.commit(commitMessage)
         origin = repo.remote(name='origin')
         origin.push()
