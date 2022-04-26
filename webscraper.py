@@ -12,6 +12,7 @@ import datetime
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
 import os
+from git import Repo
     
 now = datetime.datetime.now()
 years=range(2009,now.year+1)
@@ -22,6 +23,11 @@ monthDict = {'Enero':1,'Febrero':2, 'Marzo':3, 'Abril':4,
                'Mayo':5,  'Junio':6,  'Julio':7,  'Agosto':8,
                'Septiembre':9,  'Octubre':10,  'Noviembre':11,  'Diciembre':12}
 contractsFolder=f'contratos/'
+pathGit = './.git'  # make sure .git folder is properly configured
+commitMessage = f'feat: update contracts {now}'
+columnNames = ['Año','Mes','Rubro','CUIL proveedor','Razon social',
+                   'Nombre Fantasia','Cantidad de contratados', 
+                    'Importe']
 
 def formatImportToNumber(text):
     text =text.replace(".","")
@@ -77,16 +83,6 @@ def mapYear(year):
                mapMonth(month,year)
     print(f'year {year} mapped successfully')
 
-def mapComplete():
-    for year in years:
-        if year != now.year:
-            if not os.path.exists(f'./{contractsFolder}contratos-{12}-{year}.xlsx'):
-                mapYear(year)
-        else:
-            if not isScrapingUpToDate() or not os.path.exists(f'./{contractsFolder}contratos-{now.month}-{year}.xlsx'):
-                mapYear(year)   
-                writeLastRun()
-
 def writeLastRun():
     page = requests.get(f'https://cdeluruguay.gob.ar/datagov/proveedoresContratados.php')
     content = page.text
@@ -127,15 +123,34 @@ def appendAllYears():
             if os.path.exists(f'./{contractsFolder}contratos-{month}-{year}.xlsx'):
                 df=df.append(pd.read_excel(f'{contractsFolder}contratos-{month}-{year}.xlsx'))   
     route=f'{contractsFolder}contratos-complete.csv'
-    df.to_csv(route, index = False)    
+    df.to_csv(route, index = False)   
     
+def mapComplete():
+    for year in years:
+        if year != now.year:
+            if not os.path.exists(f'./{contractsFolder}contratos-{12}-{year}.xlsx'):
+                mapYear(year)
+        else:
+            if not isScrapingUpToDate() or not os.path.exists(f'./{contractsFolder}contratos-{now.month}-{year}.xlsx'):
+                mapYear(year) 
+                appendAllYears() 
+                writeLastRun()
+                git_push
+    
+def git_push():
+    try:
+        repo = Repo(pathGit)
+        repo.git.add(update=True)
+        repo.index.commit(commitMessage)
+        origin = repo.remote(name='origin')
+        origin.push()
+    except:
+        print('Some error occured while pushing the code')      
 
-columnNames = ['Año','Mes','Rubro','CUIL proveedor','Razon social',
-                   'Nombre Fantasia','Cantidad de contratados', 
-                    'Importe']
+
 if not os.path.exists(f'./{contractsFolder}'):
             os.mkdir(contractsFolder)
 mapComplete()  
-appendAllYears()  
+ 
 
 
