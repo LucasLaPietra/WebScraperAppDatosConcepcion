@@ -24,7 +24,7 @@ monthDict = {'Enero':1,'Febrero':2, 'Marzo':3, 'Abril':4,
                'Mayo':5,  'Junio':6,  'Julio':7,  'Agosto':8,
                'Septiembre':9,  'Octubre':10,  'Noviembre':11,  'Diciembre':12}
 contractsFolder=f'contratos/'
-pathGit = './.git'  # make sure .git folder is properly configured
+pathGit = './.git'
 commitMessage = f'feat: update contracts {now}'
 columnNames = ['Año','Mes','Rubro','CUIL proveedor','Razon social',
                    'Nombre Fantasia','Cantidad de contratados', 
@@ -110,7 +110,7 @@ def isScrapingUpToDate():
         lastUpdate=checkLastUpdate()
         with open('lastRunDate.txt') as file:
             lastRunDate = file.read()
-            if lastRunDate==lastUpdate:
+            if lastRunDate == lastUpdate:
                 return True
             else:
                 return False
